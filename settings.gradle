@@ -13,4 +13,6 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "FossilVoiceTest"
-include ':app'
+include ':models',':app'
+include 'test'
+
