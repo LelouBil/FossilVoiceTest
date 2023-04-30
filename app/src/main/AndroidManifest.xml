@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -12,14 +12,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FossilVoiceTest"
         tools:targetApi="31">
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.FossilVoiceTest">
+            android:label="@string/title_activity_main"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,10 +28,10 @@
 
         <service
             android:name=".VoiceListenerService"
-            android:foregroundServiceType="microphone"
-            android:enabled="true"/>
-
-        <service android:name=".VoiceDataReceiverService"
+            android:enabled="true"
+            android:foregroundServiceType="microphone" />
+        <service
+            android:name=".VoiceDataReceiverService"
             android:enabled="true"
             android:exported="true" />
     </application>

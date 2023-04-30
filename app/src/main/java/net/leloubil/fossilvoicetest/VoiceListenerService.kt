@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.*
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -74,18 +75,24 @@ class VoiceListenerService : Service() {
 
     private inner class RecogListener : org.vosk.android.RecognitionListener {
         private val builder = StringBuilder()
+        private var partial : String? = null
         override fun onPartialResult(hypothesis: String) {
             Log.d(TAG, "onPartialResult: $hypothesis")
+            partial = JSONObject(hypothesis).getString("partial")
         }
 
         override fun onResult(hypothesis: String) {
+            Log.d(TAG, "onResult: $hypothesis")
+            builder.append(JSONObject(hypothesis).getString("text")).append(" ")
+            partial = null
 //            builder.append(JSONObject(hypothesis).getString("text")).append(" ")
         }
 
         override fun onFinalResult(hypothesis: String) {
             val text = JSONObject(hypothesis).getString("text")
-            Log.d(TAG, "onFinalResult: $text")
-//            Log.d(TAG, "onFinalResult: $builder")
+            builder.append(partial)
+//            Log.d(TAG, "onFinalResult: $text")
+            Log.d(TAG, "onFinalResult builder: $builder")
             sendBroadcast(Intent("net.leloubil.fossilvoicetest.VOICE").putExtra("TEXT", text))
             builder.clear()
             stopSelf()
@@ -103,10 +110,17 @@ class VoiceListenerService : Service() {
 
     private suspend fun unpackModel() = suspendCancellableCoroutine<Model> { cont ->
 
-        Log.d(TAG, "runRecognition: unpacking model")
+        val value = getSharedPreferences("prefs", MODE_PRIVATE)
+            .getString("language", "English")
+        val model = when (value){
+            "English" -> "vosk-model-small-en-us-0.15"
+            "French" -> "vosk-small-fr"
+            else -> throw IllegalArgumentException("Unknown language $value")
+        }
+        Log.d(TAG, "runRecognition: unpacking model $model")
         StorageService.unpack(
             applicationContext,
-            "vosk-small-fr",
+            model,
             "model",
             {
                 Log.d(TAG, "runRecognition: model callback")
@@ -150,7 +164,8 @@ class VoiceListenerService : Service() {
 
     override fun onUnbind(intent: Intent?): Boolean {
         //run cleanup method in 2 seconds
-        Handler(Looper.getMainLooper()).postDelayed({ cleanup() }, 4000)
+        Handler(Looper.getMainLooper()).postDelayed({ cleanup() }, 2000)
+//        cleanup()
         Log.d(TAG, "onUnbind")
         return super.onUnbind(intent)
     }

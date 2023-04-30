@@ -24,6 +24,10 @@ class BlockingByteArrayOutputStream extends InputStream {
         try {
             return buffer.take();
         } catch (InterruptedException e) {
+            if(closed.get()) {
+                Log.d(TAG, "Stream is closed");
+                return -1;
+            }
             throw new IOException(e);
         }
     }

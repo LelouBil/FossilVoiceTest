@@ -18,12 +18,17 @@ android {
 }
 
 tasks.register('genUUID') {
-    def uuid = UUID.randomUUID().toString()
-    def odir = file("$buildDir/generated/assets/vosk-small-fr")
-    def ofile = file("$odir/uuid")
-    doLast {
-        mkdir odir
-        ofile.text = uuid
+    // for each file in srcDir, generate a UUID and write it to a file in odir
+
+    for (modelDir in android.sourceSets.main.assets.srcDirs.first().listFiles()) {
+        def uuid = UUID.randomUUID().toString()
+
+        def odir = file("$buildDir/generated/assets/${modelDir.name}")
+        def ofile = file("$odir/uuid")
+        doLast {
+            mkdir odir
+            ofile.text = uuid
+        }
     }
 }
 
